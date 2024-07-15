@@ -1,0 +1,565 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+
+![](divvyfile-1-900x600.jpg)
+
+---
+title: "Cyclistic Bike-Share Marketing Analysis by R"
+author: "Adela Xu"
+date: "2024-07-12"
+output: pdf_document
+---
+
+## **Introduction**
+
+This case study is a capstone project for the Google Data Analyst Professional Certificate. In this project, I employed analytical and data visualization skills to address a marketing problem for Cyclistic, a fictional bike share company in Chicago.
+
+### **Scenario**
+
+I am a junior data analyst on the marketing analytics team at Cyclistic, a bike-share company in Chicago. The director of marketing believes that the company's future success depends on increasing the number of annual subscribers. To achieve this, our team aims to understand how casual customers and annual subscribers use Cyclistic bikes differently. With these insights, we will design a new marketing strategy to convert casual customers into annual subscribers.
+
+### **About the company**
+
+In 2016, Cyclistic launched a successful bike-share offering. Since then, the program has grown to a fleet of 5,824 bicycles that are geotracked and locked into a network of 692 stations across Chicago. The bikes can be unlocked form one station and returned to any other station in the system anytime.
+
+Until now, Cyclistic’s marketing strategy relied on building general awareness and appealing to broad consumer segments. Cyclistic’s finance analysts have concluded that annual members are much more profitable than casual riders. Thus, the marketing director (my manager) has set a clear goal: Design marketing strategies aimed at converting casual customers into annual subscribers. In order to do that, the team needs to better understand how annual subscribers and casual customers differ, why casual customers would buy a subscription, and how digital media could affect their marketing tactics. Our team are interested in analyzing the Cyclistic historical bike trip data to identify trends.
+
+## **Ask Phase**
+
+### **Business Tasks**
+
+As a data analyst on the marketing team, my job is to answer the question: **How do annual subscribers and casual customers use Cyclistic bikes differently?** I will present a detailed analysis supported by data visualizations, share the key findings, and provide recommendations accordingly.
+
+### **Questions to be answered**
+
+-   What are the proportions of subscribers and casual customers?
+-   How do trip durations differ for subscribers and casual customers?
+-   How do trip frequencies differ between weekdays and weekends for both groups?
+-   Are there noticeable differences in trip purposes between members and casual riders?
+-   What are the peak hours during weekdays and weekends for both subscribers and casual customers?
+-   How does bike usage vary across different seasons for both subscribers and casual customers?
+-   Which stations are more popular among subscribers and casual customers?
+-   How do the demographics (e.g., birth year, gender) of subscribers compare to those of casual customers?
+
+## **Prepare Phase**
+
+I analyzed Cyclistic's historical trip data from all four quarters of 2019 to identify trends. The data is downloaded from [here](https://divvy-tripdata.s3.amazonaws.com/index.html) and is provided by Motivate International Inc. under this [license](https://divvybikes.com/data-license-agreement). Each of the four files is contains twelve columns of data for all rides that occurred between January 2019 and December 2019. The credibility of the data source is confirmed.
+
+## **Process Phase**
+
+```{r install packages}
+# Load required packages
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+```
+
+```{r upload datasets}
+# Upload the four CSV files for the trip data of 2019
+Q1_2019 <- read.csv("Divvy_Trips_2019_Q1.csv")
+Q2_2019 <- read.csv("Divvy_Trips_2019_Q2.csv")
+Q3_2019 <- read.csv("Divvy_Trips_2019_Q3.csv")
+Q4_2019 <- read.csv("Divvy_Trips_2019_Q4.csv")
+```
+
+```{r col names}
+# Review and compare column names of each file
+# While the names don't have to be in the same order, we want them to match perfectly before we use a command to combine them into one file
+colnames(Q1_2019)
+colnames(Q2_2019)
+colnames(Q3_2019)
+colnames(Q4_2019)
+
+# Q2 dataset's column names are different from the others. Rename columns to make Q2 data consistent with the other 3 quarters'.
+Q2_2019 <- rename(Q2_2019 
+                  ,trip_id = X01...Rental.Details.Rental.ID
+                  ,start_time = X01...Rental.Details.Local.Start.Time
+                  ,end_time = X01...Rental.Details.Local.End.Time
+                  ,bikeid = X01...Rental.Details.Bike.ID
+                  ,tripduration = X01...Rental.Details.Duration.In.Seconds.Uncapped
+                  ,from_station_id = X03...Rental.Start.Station.ID
+                  ,from_station_name = X03...Rental.Start.Station.Name
+                  ,to_station_id = X02...Rental.End.Station.ID
+                  ,to_station_name = X02...Rental.End.Station.Name
+                  ,usertype = User.Type
+                  ,gender = Member.Gender
+                  ,birthyear = X05...Member.Details.Member.Birthday.Year
+                  )
+```
+
+```{r inspect str}
+# Inspect the dataframes and look for incongruences. 
+str(Q1_2019)
+str(Q2_2019)
+str(Q3_2019)
+str(Q4_2019)
+# The data types are consistent across the four datasets for all columns, good to go for combining!
+```
+
+```{r combine datasets}
+# Combine the four datasets into one
+all_trips <- bind_rows(Q1_2019, Q2_2019, Q3_2019, Q4_2019)
+```
+```{r remove duplicate}
+# Remove any duplicate trips
+all_trips <- all_trips %>% distinct()
+```
+```{r missing values}
+# Check for missing values in each column
+missing_values <- colSums(is.na(all_trips) | all_trips == "")
+# Print the number of missing values in each column
+print(missing_values)
+# Only gender and birthyear columns have missing values
+# 559206 rows with missing gender, percentage 14.6%
+# 537801 rows with missing birthyear, percentage 14.1%
+# Due to the high percentage of missing values in these two columns, we will retain them for further analysis that does not depend on these columns.
+```
+```{r all_trips str}
+# check "all_trips" structure
+str(all_trips)
+```
+
+```{r date-time conversion}
+# Convert start_time and end_time to Date-Time
+all_trips <- all_trips %>%
+  mutate(start_time = ymd_hms(start_time),
+         end_time = ymd_hms(end_time))
+
+# Convert tripduration to Numeric
+all_trips <- all_trips %>%
+  mutate(tripduration = as.numeric(gsub(",", "", tripduration)))
+
+# Convert tripduration from seconds to minutes
+all_trips <- all_trips %>%
+  mutate(tripduration_minutes = tripduration / 60)
+
+# verify the str again
+str(all_trips)
+
+```
+
+```{r delete tripduration in sec}
+# delete tripduration in sec
+clean_data <- all_trips %>%
+  select(-tripduration)
+```
+```{r round tripduration and range}
+# round tripduration_minutes to 2 decimal places
+clean_data$tripduration_minutes <- round(clean_data$tripduration_minutes, 2)
+# check tripduration_minutes range
+range(clean_data$tripduration_minutes)
+```
+
+```{r check unique labels}
+# check unique labels for usertype
+unique(clean_data$usertype)
+
+# check unique labels for gender
+unique(clean_data$gender)
+```
+
+
+
+```{r outliers}
+# check how many trips are over 24h; they may be outliers that can be neglected
+sum(clean_data$tripduration_minutes >= 1440)
+# trip over 24h percentage is 0.04%, can be treated as outliers and deleted from the dataset
+clean_data <- (clean_data %>%
+                 filter(tripduration_minutes < 1440))
+```
+
+```{r summary}
+# See the numeric summaries of the cleaned dataset
+summary(clean_data)
+```
+
+## **Analyze and Share**
+
+```{r total trip counts}
+# Calculate total trip counts for both user types
+total_trips <- clean_data %>%
+  group_by(usertype) %>%
+  summarize(count = n())
+# Format the count with commas
+total_trips$count <- format(total_trips$count, big.mark = ",")
+print(total_trips)
+```
+
+```{r pie chart}
+# Format count back to number
+total_trips$count_num <- as.numeric(gsub(",", "", total_trips$count))
+# Calculate percentages
+total_trips <- total_trips %>%
+  mutate(percentage = count_num / sum(count_num) * 100)
+
+# Create pie chart with percentages
+ggplot(total_trips, aes(x = "", y = count, fill = usertype)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar(theta = "y") +
+  labs(title = "Proportion of Total Trips by User Type") +
+  geom_text(aes(label = paste0(usertype, "\n", count, "\n", round(percentage, 1), "%")),
+            position = position_stack(vjust = 0.5), color = "white", size = 5) + 
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")
+
+```
+
+```{r avg trip duration by usertype}
+# Calculate average trip duration for each user type
+avg_tripduration <- clean_data %>%
+  group_by(usertype) %>%
+  summarize(avg_tripduration_minutes = round(mean(tripduration_minutes, na.rm = TRUE), 1))
+
+# Print the result
+avg_tripduration
+```
+
+```{r bar chart avg trip duration}
+# Bar chart for average trip duration by user type
+ggplot(data = avg_tripduration, aes(x = usertype, y = avg_tripduration_minutes, fill = usertype)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste(avg_tripduration_minutes, "min")), vjust = -0.5, size = 4, color = "black") +
+  labs(title = "Average Trip Duration by User Type",
+       x = "",
+       y = "Average Trip Duration") +
+  theme_minimal() +
+  guides(fill = FALSE) +
+  theme(axis.text.x = element_text(size = 12, face = "bold"),  # Adjust axis text properties
+        axis.text.y = element_text(size = 12, face = "bold"),
+        plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r trip duration distribution}
+ggplot(clean_data, aes(x = tripduration_minutes, fill = usertype)) +
+  geom_histogram(binwidth = 10, boundary = 0, position = "dodge", color = "black") +
+  facet_wrap(~ usertype, scales = "free_x") +
+  labs(title = "Trip Duration Distribution by User Type",
+       x = "Trip Duration in Minutes",
+       y = "Trip Count",
+       fill = "User Type") +
+  xlim(0, 90) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "NONE")
+
+# Trip durations for casual customers typically range between 10 and 30 minutes, whereas trip durations for subscribers mostly fall within the 0 to 20 minute range.
+```
+
+```{r add weekday col}
+# add a column that shows day of the week (1 for Sunday through 7 for Saturday)
+clean_data$day_of_week <- wday(clean_data$start_time, label = FALSE)
+```
+
+```{r weekday_or_weekend col}
+# add a column that shows if it's weekend or weekday
+clean_data$weekday_or_weekend <- ifelse(clean_data$day_of_week %in% c(1, 7), "Weekend", "Weekday")
+```
+
+```{r avg trip counts and duration for weekday/weekend}
+
+# Calculate average trip counts and average trip duration for weekdays and weekends for subscribers and casual customers
+daily_summary <- clean_data %>%
+  mutate(day = as.Date(start_time)) %>%  # Extract the day from start_time
+  group_by(day, weekday_or_weekend, usertype) %>%
+  summarize(
+    daily_trip_count = n(),
+    avg_daily_tripduration_minutes = mean(tripduration_minutes, na.rm = TRUE),
+    .groups = 'drop'
+  )
+
+# Calculate the average daily trip count and average daily trip duration for weekdays and weekends
+average_daily_summary <- daily_summary %>%
+  group_by(weekday_or_weekend, usertype) %>%
+  summarize(
+    avg_daily_trip_count = round(mean(daily_trip_count), 0),
+    avg_daily_tripduration_minutes = round(mean(avg_daily_tripduration_minutes, na.rm = TRUE), 1),
+    .groups = 'drop'
+  ) %>%
+  arrange(usertype, weekday_or_weekend)
+
+# Print the average daily summary as one table
+print(average_daily_summary)
+
+# Insights from the table:
+# Customers tend to use the bike service more on weekends compared to weekdays, indicating potential leisure needs.
+# Subscribers show higher usage overall, particularly on weekdays, indicating potential commuting patterns.
+# Average trip durations are generally shorter for Subscribers compared to Customers across both weekdays and weekends.
+```
+
+```{r weekday/weekend bar charts}
+# Create bar chart with labels inside bars
+ggplot(average_daily_summary, aes(x = weekday_or_weekend, y = avg_daily_trip_count, fill = usertype)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.9)) +
+  geom_text(aes(label = avg_daily_trip_count), 
+             position = position_dodge(width = 0.9),
+            vjust = -0.5, size = 4, color = "black") +
+  geom_text(aes(y = 0, label = usertype), 
+            position = position_dodge(width = 0.9), 
+            vjust = 1.2, size = 4, color = "black") +
+  labs(title = "Average Daily Trips by User Type and Day Type",
+       x = "",
+       y = "Average Daily Trips") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 12, face = "bold"),  # Adjust axis text properties
+        axis.text.y = element_text(size = 12, face = "bold"),
+        legend.position = "none",
+        plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r peak hours}
+clean_data <- clean_data %>%
+  mutate(hour = hour(start_time))
+
+# Calculate trip counts by hour, usertype, and weekday/weekend
+top_trip_counts <- clean_data %>%
+  group_by(hour, usertype, weekday_or_weekend) %>%
+  summarize(trip_count = n()) %>%
+  arrange(desc(trip_count)) %>%
+  group_by(weekday_or_weekend, usertype) %>%
+  top_n(2, trip_count)  # Select top 2 trips for each usertype and weekday/weekend
+
+# Create the histograms
+ggplot(clean_data, aes(x = hour, fill = usertype)) +
+  geom_histogram(binwidth = 1, position = "dodge", color = "black") +
+  facet_wrap(~ weekday_or_weekend + usertype, ncol = 2, scales = "free_x") +
+  labs(title = "Trip Counts by Hour for Each User Type and Day Type",
+       x = "Hour of Day",
+       y = "Trip Count",
+       fill = "User Type") +
+  theme_minimal() +
+  theme(strip.text = element_text(size = 12, face = "bold"),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10),
+        legend.position = "none",
+        strip.placement = "outside",  # Place facet labels outside the plot area
+        plot.title = element_text(size = 14, face = "bold"),
+        panel.spacing = unit(1, "lines")) +
+  theme(axis.title.x = element_text(margin = margin(t = 20))) +  # Adjust top margin for x-axis label
+  geom_text(data = top_trip_counts, aes(label = hour, y = trip_count + 2), 
+            position = position_dodge(width = 1), size = 3, vjust = -0.5, color = "black")
+```
+
+```{r seasonal}
+# categorize the trips into four seasons
+clean_data <- clean_data %>%
+  mutate(season = case_when(
+    month(start_time) %in% c(12, 1, 2) ~ "Winter",
+    month(start_time) %in% c(3, 4, 5) ~ "Spring",
+    month(start_time) %in% c(6, 7, 8) ~ "Summer",
+    month(start_time) %in% c(9, 10, 11) ~ "Fall"
+  ))
+
+# # Group by season and usertype
+seasonal_summary <- clean_data %>%
+  mutate(season = factor(season, levels = c("Spring", "Summer", "Fall", "Winter"))) %>%
+  group_by(usertype, season) %>%
+  summarize(
+    total_trips = n(),
+    avg_trip_duration_minutes = mean(tripduration_minutes, na.rm = TRUE)
+  ) %>%
+  arrange(usertype, season)
+
+print(seasonal_summary)
+```
+
+```{r seasonal plot}
+# Plotting the grouped bar chart
+ggplot(seasonal_summary, aes(x = season, y = total_trips, fill = usertype)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Total Trips by Season and User Type",
+    x = "Season",
+    y = "Total Trips",
+    fill = "User Type"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.position = "bottom",
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.5)
+  )
+```
+
+```{r top start stations}
+popular_start_stations <- clean_data %>%
+  group_by(from_station_name, usertype) %>%
+  summarize(trip_count = n()) %>%
+  arrange(usertype, desc(trip_count))
+
+top_start_stations <- popular_start_stations %>%
+  group_by(usertype) %>%
+  top_n(10, trip_count)
+
+# Now do some adjustments for smooth combination and plot
+# Rename station column
+top_start_stations <- top_start_stations %>%
+  rename(station_name = from_station_name)
+
+# Add size column
+top_start_stations$size <- sqrt(top_start_stations$trip_count) * 2
+
+# Add a column for plots's label
+top_start_stations$usertype_start_end <- paste(top_start_stations$usertype, "_start", sep = "")
+
+print(top_start_stations)
+```
+
+```{r top to stations}
+popular_end_stations <- clean_data %>%
+  group_by(to_station_name, usertype) %>%
+  summarize(trip_count = n()) %>%
+  arrange(usertype, desc(trip_count))
+
+top_end_stations <- popular_end_stations %>%
+  group_by(usertype) %>%
+  top_n(10, trip_count)
+
+# Now do some adjustments for smooth combination and plot
+# Rename column
+top_end_stations <- top_end_stations %>%
+  rename(station_name = to_station_name)
+
+# Add size column
+top_end_stations$size <- sqrt(top_end_stations$trip_count) * 2
+
+# Add a column for plot's label
+top_end_stations$usertype_start_end <- paste(top_end_stations$usertype, "_end", sep = "")
+
+print(top_end_stations)
+```
+
+```{r combine stations}
+# combine top start and end stations for further visualization
+combined_stations <- union(top_start_stations, top_end_stations)
+
+```
+
+```{r top station plot}
+ggplot(combined_stations, aes(x = station_name, y = usertype_start_end, size = size, fill = usertype)) +
+  geom_point(shape = 21, color = "black", aes(fill = usertype), stroke = 1) +
+  scale_size(range = c(3, 18)) +
+  labs(
+    title = "Top Stations by User Type",
+    x = "Station",
+    y = "User Type & Start/End",
+    size = "Trip Count",
+    fill = "User Type"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 12),
+    legend.position = "NONE",
+    plot.title = element_text(size = 14, face = "bold", hjust = 0.4)
+  )
+# Insight: The top start and end stations are generally consistent within the same user type. However, there is little overlap in the top stations between different user types.
+```
+
+```{r gender}
+# Clean the data for gender analysis.
+data_with_gender <- clean_data %>%
+  filter(!is.na(gender) & gender != "")
+
+# Number and proportion of gender by User Type
+gender_counts <- data_with_gender %>%
+  group_by(usertype, gender) %>%
+  summarise(count = n()) %>%
+  ungroup()
+
+gender_proportions <- gender_counts %>%
+  group_by(usertype) %>%
+  mutate(proportion = count / sum(count)) %>%
+  ungroup()
+
+# Plot proportion of genders by user type
+ggplot(gender_proportions, aes(x = usertype, y = proportion, fill = gender)) +
+  geom_bar(stat = "identity", position = "fill") +
+  scale_fill_manual(values = c("Male" = "blue", "Female" = "red")) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Proportion of Genders by User Type",
+       x = "User Type",
+       y = "Proportion",
+       fill = "Gender") +
+  geom_text(aes(label = paste0(gender, "\n", round(proportion, 2)*100, "%")),
+            position = position_stack(vjust = 0.5), color = "white", size = 5) +
+  theme(legend.position = "none",  # Remove legend
+        plot.title = element_text(hjust = 0.5))  # Center plot title
+
+
+```
+
+```{r birthyear}
+# clean the data for birthyear analysis
+data_with_birthyear <- clean_data %>%
+  filter(!is.na(birthyear) & birthyear != "")
+
+# Plot age distribution for Subscriber and Customer
+ggplot(data_with_birthyear, aes(x = birthyear, fill = usertype)) +
+  geom_histogram(binwidth = 10, boundary = 1940, position = "dodge", color = "black") +
+  facet_wrap(~ usertype, ncol = 2, scales = "free_x") +
+  labs(title = "Birth Year Distribution by User Type",
+       x = "Birth Year",
+       y = "Trip Count",
+       fill = "User Type") +
+  theme_minimal() +
+  xlim(1940, 2010)
+
+# Insight: The majority of users are born between 1980 and 2000. Casual customers are predominantly born between 1990 and 2000, while subscribers are mostly born between 1980 and 1990.
+```
+
+## **Key Findings**
+
+### **User Demographics**
+
+-   Among all trips, casual customers outnumber subscribers by three to one.
+-   Male users outnumber female users in both groups, but casual customers have a higher proportion of female users compared to subscribers.
+-   The majority of users are born between 1980 and 2000. Casual customers are predominantly born between 1990 and 2000, while subscribers are mostly born between 1980 and 1990.
+
+### **Trip Duration and Frequency**
+
+-   Casual customers typically have longer trip durations (10-30 minutes) compared to subscribers (0-20 minutes).
+-   Subscribers predominantly use Cyclistic on weekdays.
+-   Casual users favor weekends.
+
+### **Usage Patterns**
+
+-   On weekdays, the peak hours for subscribers are 8 AM and 5 PM.
+-   For casual customers, the peak hour on weekdays is 5 PM.
+-   On weekends, the peak hours for both user types are after 12 PM.
+
+### **Seasonal Trends**
+
+-   Cyclistic is most popular during the summer and least popular in winter for both user types.
+
+### **Popular Stations**
+
+-   Popular stations differ significantly between user types.
+    -   Casual customers frequent Streeter Dr & Grand Ave, Lake Shore Dr & Monroe St, and Millennium Park.
+    -   Subscribers prefer Clinton St & Washington Blvd, Canal St & Adams St, and Clinton St & Madison St.
+
+## **Act Phase**
+
+### Recommendations
+
+1.  **Target Younger Audiences:** Since casual users are predominantly born between 1990 and 2000, create marketing campaigns that resonate with younger demographics. Use social media platforms like Instagram, TikTok, and Snapchat where this age group is highly active.
+
+2. **Highlight Cost Savings:** Emphasize how subscribing can save money for frequent users, especially those who currently take longer trips as casual customers. Show comparative costs between paying per trip versus subscribing for unlimited shorter trips.
+
+3.  **Offer Flexible Subscription Plans:** Introduce flexible subscription plans that cater to varying needs, such as weekend-only plans or limited ride packages, to appeal to casual users who may not ride daily.
+
+4.  **Weekend Specials:** Since casual users favor weekends, create special weekend promotions for subscribers. Offer perks like extended ride times or discounts on weekend rides for subscribers.
+
+5.  **Peak Hour Benefits:** Promote benefits for subscribers during peak hours, such as guaranteed bike availability or priority access during the busiest times.
+
+6.  **Seasonal Promotions:** Launch seasonal campaigns that offer discounts or special benefits for new subscribers, especially during the summer when usage peaks. Highlight the advantages of being a subscriber during the high-demand season.
+
+7.  **Station-Based Incentives:** Implement incentives at popular casual user stations (Streeter Dr & Grand Ave, Lake Shore Dr & Monroe St, and Millennium Park) to encourage sign-ups. For example, set up subscription kiosks with promotional offers or host events at these locations.
