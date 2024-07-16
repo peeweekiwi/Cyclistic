@@ -1,9 +1,9 @@
+![](cyclistic_files/figure-markdown_strict/divvyfile-1-900x600.jpg)
+
 # Cyclistic Bike-Share Marketing Analysis by R
 
 **Author:** Adela Xu  
 **Date:** 2024-07-12
-
-![](cyclistic_files/figure-markdown_strict/divvyfile-1-900x600.jpg)
 
 ## **Introduction**
 
@@ -83,25 +83,10 @@ data source is confirmed.
 
     # Load required packages
     library(tidyverse)
-
-    ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-    ## ✔ dplyr     1.1.4     ✔ readr     2.1.5
-    ## ✔ forcats   1.0.0     ✔ stringr   1.5.1
-    ## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
-    ## ✔ lubridate 1.9.3     ✔ tidyr     1.3.1
-    ## ✔ purrr     1.0.2     
-    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-    ## ✖ dplyr::filter() masks stats::filter()
-    ## ✖ dplyr::lag()    masks stats::lag()
-    ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-
     library(dplyr)
     library(ggplot2)
     library(lubridate)
     library(rmarkdown)
-
-    ## Warning: package 'rmarkdown' was built under R version 4.3.3
-
     knitr::opts_chunk$set(echo = TRUE)
 
     # Upload the four CSV files for the trip data of 2019
@@ -114,10 +99,9 @@ data source is confirmed.
     # While the names don't have to be in the same order, we want them to match perfectly before we use a command to combine them into one file
     colnames(Q1_2019)
 
-    ##  [1] "trip_id"           "start_time"        "end_time"         
-    ##  [4] "bikeid"            "tripduration"      "from_station_id"  
-    ##  [7] "from_station_name" "to_station_id"     "to_station_name"  
-    ## [10] "usertype"          "gender"            "birthyear"
+    ##  [1] "trip_id"           "start_time"        "end_time"          "bikeid"           
+    ##  [5] "tripduration"      "from_station_id"   "from_station_name" "to_station_id"    
+    ##  [9] "to_station_name"   "usertype"          "gender"            "birthyear"
 
     colnames(Q2_2019)
 
@@ -136,17 +120,15 @@ data source is confirmed.
 
     colnames(Q3_2019)
 
-    ##  [1] "trip_id"           "start_time"        "end_time"         
-    ##  [4] "bikeid"            "tripduration"      "from_station_id"  
-    ##  [7] "from_station_name" "to_station_id"     "to_station_name"  
-    ## [10] "usertype"          "gender"            "birthyear"
+    ##  [1] "trip_id"           "start_time"        "end_time"          "bikeid"           
+    ##  [5] "tripduration"      "from_station_id"   "from_station_name" "to_station_id"    
+    ##  [9] "to_station_name"   "usertype"          "gender"            "birthyear"
 
     colnames(Q4_2019)
 
-    ##  [1] "trip_id"           "start_time"        "end_time"         
-    ##  [4] "bikeid"            "tripduration"      "from_station_id"  
-    ##  [7] "from_station_name" "to_station_id"     "to_station_name"  
-    ## [10] "usertype"          "gender"            "birthyear"
+    ##  [1] "trip_id"           "start_time"        "end_time"          "bikeid"           
+    ##  [5] "tripduration"      "from_station_id"   "from_station_name" "to_station_id"    
+    ##  [9] "to_station_name"   "usertype"          "gender"            "birthyear"
 
     # Q2 dataset's column names are different from the others. Rename columns to make Q2 data consistent with the other 3 quarters'.
     Q2_2019 <- rename(Q2_2019 
@@ -242,12 +224,12 @@ data source is confirmed.
     # Print the number of missing values in each column
     print(missing_values)
 
-    ##           trip_id        start_time          end_time            bikeid 
-    ##                 0                 0                 0                 0 
-    ##      tripduration   from_station_id from_station_name     to_station_id 
-    ##                 0                 0                 0                 0 
-    ##   to_station_name          usertype            gender         birthyear 
-    ##                 0                 0            559206            538751
+    ##           trip_id        start_time          end_time            bikeid      tripduration 
+    ##                 0                 0                 0                 0                 0 
+    ##   from_station_id from_station_name     to_station_id   to_station_name          usertype 
+    ##                 0                 0                 0                 0                 0 
+    ##            gender         birthyear 
+    ##            559206            538751
 
     # Only gender and birthyear columns have missing values
     # 559206 rows with missing gender, percentage 14.6%
@@ -289,8 +271,8 @@ data source is confirmed.
 
     ## 'data.frame':    3818004 obs. of  13 variables:
     ##  $ trip_id             : int  21742443 21742444 21742445 21742446 21742447 21742448 21742449 21742450 21742451 21742452 ...
-    ##  $ start_time          : POSIXct, format: "2019-01-01 00:04:37" "2019-01-01 00:08:13" ...
-    ##  $ end_time            : POSIXct, format: "2019-01-01 00:11:07" "2019-01-01 00:15:34" ...
+    ##  $ start_time          : POSIXct, format: "2019-01-01 00:04:37" "2019-01-01 00:08:13" "2019-01-01 00:13:23" ...
+    ##  $ end_time            : POSIXct, format: "2019-01-01 00:11:07" "2019-01-01 00:15:34" "2019-01-01 00:27:12" ...
     ##  $ bikeid              : int  2167 4386 1524 252 1170 2437 2708 2796 6205 3939 ...
     ##  $ tripduration        : num  390 441 829 1783 364 ...
     ##  $ from_station_id     : int  199 44 15 123 173 98 98 211 150 268 ...
@@ -335,38 +317,30 @@ data source is confirmed.
     # See the numeric summaries of the cleaned dataset
     summary(clean_data)
 
-    ##     trip_id           start_time                    
-    ##  Min.   :21742443   Min.   :2019-01-01 00:04:37.00  
-    ##  1st Qu.:22873766   1st Qu.:2019-05-29 15:47:49.00  
-    ##  Median :23962244   Median :2019-07-25 17:49:19.00  
-    ##  Mean   :23915593   Mean   :2019-07-19 21:44:54.03  
-    ##  3rd Qu.:24963670   3rd Qu.:2019-09-15 04:29:04.00  
-    ##  Max.   :25962904   Max.   :2019-12-31 23:57:17.00  
-    ##                                                     
-    ##     end_time                          bikeid     from_station_id
-    ##  Min.   :2019-01-01 00:11:07.00   Min.   :   1   Min.   :  1.0  
-    ##  1st Qu.:2019-05-29 16:07:30.00   1st Qu.:1727   1st Qu.: 77.0  
-    ##  Median :2019-07-25 18:08:30.00   Median :3453   Median :174.0  
-    ##  Mean   :2019-07-19 22:03:56.25   Mean   :3380   Mean   :201.6  
-    ##  3rd Qu.:2019-09-15 06:36:49.50   3rd Qu.:5046   3rd Qu.:289.0  
-    ##  Max.   :2020-01-01 17:25:25.00   Max.   :6946   Max.   :673.0  
-    ##                                                                 
-    ##  from_station_name  to_station_id   to_station_name      usertype        
-    ##  Length:3816155     Min.   :  1.0   Length:3816155     Length:3816155    
-    ##  Class :character   1st Qu.: 77.0   Class :character   Class :character  
-    ##  Mode  :character   Median :174.0   Mode  :character   Mode  :character  
-    ##                     Mean   :202.6                                        
-    ##                     3rd Qu.:291.0                                        
-    ##                     Max.   :673.0                                        
-    ##                                                                          
-    ##     gender            birthyear      tripduration_minutes
-    ##  Length:3816155     Min.   :1759     Min.   :   1.02     
-    ##  Class :character   1st Qu.:1979     1st Qu.:   6.85     
-    ##  Mode  :character   Median :1987     Median :  11.82     
-    ##                     Mean   :1984     Mean   :  19.03     
-    ##                     3rd Qu.:1992     3rd Qu.:  21.37     
-    ##                     Max.   :2014     Max.   :1439.75     
-    ##                     NA's   :537801
+    ##     trip_id           start_time                        end_time                     
+    ##  Min.   :21742443   Min.   :2019-01-01 00:04:37.00   Min.   :2019-01-01 00:11:07.00  
+    ##  1st Qu.:22873766   1st Qu.:2019-05-29 15:47:49.00   1st Qu.:2019-05-29 16:07:30.00  
+    ##  Median :23962244   Median :2019-07-25 17:49:19.00   Median :2019-07-25 18:08:30.00  
+    ##  Mean   :23915593   Mean   :2019-07-19 21:44:54.03   Mean   :2019-07-19 22:03:56.25  
+    ##  3rd Qu.:24963670   3rd Qu.:2019-09-15 04:29:04.00   3rd Qu.:2019-09-15 06:36:49.50  
+    ##  Max.   :25962904   Max.   :2019-12-31 23:57:17.00   Max.   :2020-01-01 17:25:25.00  
+    ##                                                                                      
+    ##      bikeid     from_station_id from_station_name  to_station_id   to_station_name   
+    ##  Min.   :   1   Min.   :  1.0   Length:3816155     Min.   :  1.0   Length:3816155    
+    ##  1st Qu.:1727   1st Qu.: 77.0   Class :character   1st Qu.: 77.0   Class :character  
+    ##  Median :3453   Median :174.0   Mode  :character   Median :174.0   Mode  :character  
+    ##  Mean   :3380   Mean   :201.6                      Mean   :202.6                     
+    ##  3rd Qu.:5046   3rd Qu.:289.0                      3rd Qu.:291.0                     
+    ##  Max.   :6946   Max.   :673.0                      Max.   :673.0                     
+    ##                                                                                      
+    ##    usertype            gender            birthyear      tripduration_minutes
+    ##  Length:3816155     Length:3816155     Min.   :1759     Min.   :   1.02     
+    ##  Class :character   Class :character   1st Qu.:1979     1st Qu.:   6.85     
+    ##  Mode  :character   Mode  :character   Median :1987     Median :  11.82     
+    ##                                        Mean   :1984     Mean   :  19.03     
+    ##                                        3rd Qu.:1992     3rd Qu.:  21.37     
+    ##                                        Max.   :2014     Max.   :1439.75     
+    ##                                        NA's   :537801
 
 ## **Analyze and Share**
 
@@ -377,12 +351,6 @@ data source is confirmed.
     # Format the count with commas
     total_trips$count <- format(total_trips$count, big.mark = ",")
     print(total_trips)
-
-    ## # A tibble: 2 × 2
-    ##   usertype   count      
-    ##   <chr>      <chr>      
-    ## 1 Customer   "  879,289"
-    ## 2 Subscriber "2,936,866"
 
     # Format count back to number
     total_trips$count_num <- as.numeric(gsub(",", "", total_trips$count))
@@ -401,9 +369,7 @@ data source is confirmed.
       theme(plot.title = element_text(hjust = 0.5),
             legend.position = "none")
 
-![](cyclistic_files/figure-markdown_strict/pie%20chart-1.png) ![Portion
-of Total Trips by User
-Type](cyclistic_files/figure-markdown_strict/pie%20chart-1.png)
+![](cyclistic_files/figure-markdown_strict/pie%20chart-1.png)
 
     # Calculate average trip duration for each user type
     avg_tripduration <- clean_data %>%
@@ -412,12 +378,6 @@ Type](cyclistic_files/figure-markdown_strict/pie%20chart-1.png)
 
     # Print the result
     avg_tripduration
-
-    ## # A tibble: 2 × 2
-    ##   usertype   avg_tripduration_minutes
-    ##   <chr>                         <dbl>
-    ## 1 Customer                       39.4
-    ## 2 Subscriber                     12.9
 
     # Bar chart for average trip duration by user type
     ggplot(data = avg_tripduration, aes(x = usertype, y = avg_tripduration_minutes, fill = usertype)) +
@@ -432,15 +392,7 @@ Type](cyclistic_files/figure-markdown_strict/pie%20chart-1.png)
             axis.text.y = element_text(size = 12, face = "bold"),
             plot.title = element_text(hjust = 0.5))
 
-    ## Warning: The `<scale>` argument of `guides()` cannot be `FALSE`. Use "none" instead as
-    ## of ggplot2 3.3.4.
-    ## This warning is displayed once every 8 hours.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-    ## generated.
-
 ![](cyclistic_files/figure-markdown_strict/bar%20chart%20avg%20trip%20duration-1.png)
-![Average Trip Duration by User
-Type](cyclistic_files/figure-markdown_strict/bar%20chart%20avg%20trip%20duration-1.png)
 
     ggplot(clean_data, aes(x = tripduration_minutes, fill = usertype)) +
       geom_histogram(binwidth = 10, boundary = 0, position = "dodge", color = "black") +
@@ -455,20 +407,11 @@ Type](cyclistic_files/figure-markdown_strict/bar%20chart%20avg%20trip%20duration
         plot.title = element_text(hjust = 0.5),
         legend.position = "NONE")
 
-    ## Warning: Removed 76191 rows containing non-finite outside the scale range
-    ## (`stat_bin()`).
+    ## Warning: Removed 76191 rows containing non-finite outside the scale range (`stat_bin()`).
 
 ![](cyclistic_files/figure-markdown_strict/trip%20duration%20distribution-1.png)
 
     # Trip durations for casual customers typically range between 10 and 30 minutes, whereas trip durations for subscribers mostly fall within the 0 to 20 minute range.
-
-<figure>
-<img
-src="cyclistic_files/figure-markdown_strict/trip%20duration%20distribution-1.png"
-alt="Trip Duration Distribution by User Type" />
-<figcaption aria-hidden="true">Trip Duration Distribution by User
-Type</figcaption>
-</figure>
 
     # add a column that shows day of the week (1 for Sunday through 7 for Saturday)
     clean_data$day_of_week <- wday(clean_data$start_time, label = FALSE)
@@ -499,15 +442,6 @@ Type</figcaption>
     # Print the average daily summary as one table
     print(average_daily_summary)
 
-    ## # A tibble: 4 × 4
-    ##   weekday_or_weekend usertype   avg_daily_trip_count avg_daily_tripduration_mi…¹
-    ##   <chr>              <chr>                     <dbl>                       <dbl>
-    ## 1 Weekday            Customer                   1922                        34.1
-    ## 2 Weekend            Customer                   3632                        40  
-    ## 3 Weekday            Subscriber                 9171                        12.2
-    ## 4 Weekend            Subscriber                 5224                        13.5
-    ## # ℹ abbreviated name: ¹​avg_daily_tripduration_minutes
-
     # Insights from the table:
     # Customers tend to use the bike service more on weekends compared to weekdays, indicating potential leisure needs.
     # Subscribers show higher usage overall, particularly on weekdays, indicating potential commuting patterns.
@@ -532,8 +466,6 @@ Type</figcaption>
             plot.title = element_text(hjust = 0.5))
 
 ![](cyclistic_files/figure-markdown_strict/weekday/weekend%20bar%20charts-1.png)
-![Average Daidy Trips by User Type and Day
-Type](cyclistic_files/figure-markdown_strict/weekend%20bar%20charts-1.png)
 
     clean_data <- clean_data %>%
       mutate(hour = hour(start_time))
@@ -546,8 +478,8 @@ Type](cyclistic_files/figure-markdown_strict/weekend%20bar%20charts-1.png)
       group_by(weekday_or_weekend, usertype) %>%
       top_n(2, trip_count)  # Select top 2 trips for each usertype and weekday/weekend
 
-    ## `summarise()` has grouped output by 'hour', 'usertype'. You can override using
-    ## the `.groups` argument.
+    ## `summarise()` has grouped output by 'hour', 'usertype'. You can override using the
+    ## `.groups` argument.
 
     # Create the histograms
     ggplot(clean_data, aes(x = hour, fill = usertype)) +
@@ -569,9 +501,7 @@ Type](cyclistic_files/figure-markdown_strict/weekend%20bar%20charts-1.png)
       geom_text(data = top_trip_counts, aes(label = hour, y = trip_count + 2), 
                 position = position_dodge(width = 1), size = 3, vjust = -0.5, color = "black")
 
-![](cyclistic_files/figure-markdown_strict/peak%20hours-1.png) ![Trip
-Counts by Hour For Each User Type and Day
-Type](cyclistic_files/figure-markdown_strict/peak%20hours-1.png)
+![](cyclistic_files/figure-markdown_strict/peak%20hours-1.png)
 
     # categorize the trips into four seasons
     clean_data <- clean_data %>%
@@ -592,23 +522,10 @@ Type](cyclistic_files/figure-markdown_strict/peak%20hours-1.png)
       ) %>%
       arrange(usertype, season)
 
-    ## `summarise()` has grouped output by 'usertype'. You can override using the
-    ## `.groups` argument.
+    ## `summarise()` has grouped output by 'usertype'. You can override using the `.groups`
+    ## argument.
 
     print(seasonal_summary)
-
-    ## # A tibble: 8 × 4
-    ## # Groups:   usertype [2]
-    ##   usertype   season total_trips avg_trip_duration_minutes
-    ##   <chr>      <fct>        <int>                     <dbl>
-    ## 1 Customer   Spring      145053                      40.8
-    ## 2 Customer   Summer      492124                      40.4
-    ## 3 Customer   Fall        218529                      36.7
-    ## 4 Customer   Winter       23583                      35.6
-    ## 5 Subscriber Spring      652983                      12.5
-    ## 6 Subscriber Summer     1129991                      14.1
-    ## 7 Subscriber Fall        823122                      12.3
-    ## 8 Subscriber Winter      330770                      11.2
 
     # Plotting the grouped bar chart
     ggplot(seasonal_summary, aes(x = season, y = total_trips, fill = usertype)) +
@@ -628,16 +545,14 @@ Type](cyclistic_files/figure-markdown_strict/peak%20hours-1.png)
       )
 
 ![](cyclistic_files/figure-markdown_strict/seasonal%20plot-1.png)
-![Total Trips by Season and User
-Type](cyclistic_files/figure-markdown_strict/seasonal%20plot-1.png)
 
     popular_start_stations <- clean_data %>%
       group_by(from_station_name, usertype) %>%
       summarize(trip_count = n()) %>%
       arrange(usertype, desc(trip_count))
 
-    ## `summarise()` has grouped output by 'from_station_name'. You can override using
-    ## the `.groups` argument.
+    ## `summarise()` has grouped output by 'from_station_name'. You can override using the
+    ## `.groups` argument.
 
     top_start_stations <- popular_start_stations %>%
       group_by(usertype) %>%
@@ -656,38 +571,13 @@ Type](cyclistic_files/figure-markdown_strict/seasonal%20plot-1.png)
 
     print(top_start_stations)
 
-    ## # A tibble: 20 × 5
-    ## # Groups:   usertype [2]
-    ##    station_name                 usertype   trip_count  size usertype_start_end
-    ##    <chr>                        <chr>           <int> <dbl> <chr>             
-    ##  1 Streeter Dr & Grand Ave      Customer        53071  461. Customer_start    
-    ##  2 Lake Shore Dr & Monroe St    Customer        39209  396. Customer_start    
-    ##  3 Millennium Park              Customer        21728  295. Customer_start    
-    ##  4 Michigan Ave & Oak St        Customer        21370  292. Customer_start    
-    ##  5 Shedd Aquarium               Customer        20609  287. Customer_start    
-    ##  6 Lake Shore Dr & North Blvd   Customer        18932  275. Customer_start    
-    ##  7 Theater on the Lake          Customer        15018  245. Customer_start    
-    ##  8 Dusable Harbor               Customer        12536  224. Customer_start    
-    ##  9 Michigan Ave & Washington St Customer        12219  221. Customer_start    
-    ## 10 Adler Planetarium            Customer        11924  218. Customer_start    
-    ## 11 Canal St & Adams St          Subscriber      50569  450. Subscriber_start  
-    ## 12 Clinton St & Madison St      Subscriber      45986  429. Subscriber_start  
-    ## 13 Clinton St & Washington Blvd Subscriber      45375  426. Subscriber_start  
-    ## 14 Columbus Dr & Randolph St    Subscriber      31369  354. Subscriber_start  
-    ## 15 Franklin St & Monroe St      Subscriber      30828  351. Subscriber_start  
-    ## 16 Kingsbury St & Kinzie St     Subscriber      30650  350. Subscriber_start  
-    ## 17 Daley Center Plaza           Subscriber      30420  349. Subscriber_start  
-    ## 18 Canal St & Madison St        Subscriber      27135  329. Subscriber_start  
-    ## 19 Michigan Ave & Washington St Subscriber      25465  319. Subscriber_start  
-    ## 20 LaSalle St & Jackson Blvd    Subscriber      23020  303. Subscriber_start
-
     popular_end_stations <- clean_data %>%
       group_by(to_station_name, usertype) %>%
       summarize(trip_count = n()) %>%
       arrange(usertype, desc(trip_count))
 
-    ## `summarise()` has grouped output by 'to_station_name'. You can override using
-    ## the `.groups` argument.
+    ## `summarise()` has grouped output by 'to_station_name'. You can override using the `.groups`
+    ## argument.
 
     top_end_stations <- popular_end_stations %>%
       group_by(usertype) %>%
@@ -705,31 +595,6 @@ Type](cyclistic_files/figure-markdown_strict/seasonal%20plot-1.png)
     top_end_stations$usertype_start_end <- paste(top_end_stations$usertype, "_end", sep = "")
 
     print(top_end_stations)
-
-    ## # A tibble: 20 × 5
-    ## # Groups:   usertype [2]
-    ##    station_name                 usertype   trip_count  size usertype_start_end
-    ##    <chr>                        <chr>           <int> <dbl> <chr>             
-    ##  1 Streeter Dr & Grand Ave      Customer        67572  520. Customer_end      
-    ##  2 Lake Shore Dr & Monroe St    Customer        30668  350. Customer_end      
-    ##  3 Millennium Park              Customer        25205  318. Customer_end      
-    ##  4 Michigan Ave & Oak St        Customer        23684  308. Customer_end      
-    ##  5 Lake Shore Dr & North Blvd   Customer        23271  305. Customer_end      
-    ##  6 Theater on the Lake          Customer        18794  274. Customer_end      
-    ##  7 Shedd Aquarium               Customer        16470  257. Customer_end      
-    ##  8 Michigan Ave & Washington St Customer        12391  223. Customer_end      
-    ##  9 Adler Planetarium            Customer        10593  206. Customer_end      
-    ## 10 Dusable Harbor               Customer         9486  195. Customer_end      
-    ## 11 Clinton St & Washington Blvd Subscriber      48192  439. Subscriber_end    
-    ## 12 Canal St & Adams St          Subscriber      47328  435. Subscriber_end    
-    ## 13 Clinton St & Madison St      Subscriber      44304  421. Subscriber_end    
-    ## 14 Daley Center Plaza           Subscriber      30629  350. Subscriber_end    
-    ## 15 Kingsbury St & Kinzie St     Subscriber      30209  348. Subscriber_end    
-    ## 16 Michigan Ave & Washington St Subscriber      27933  334. Subscriber_end    
-    ## 17 Franklin St & Monroe St      Subscriber      26760  327. Subscriber_end    
-    ## 18 Canal St & Madison St        Subscriber      26337  325. Subscriber_end    
-    ## 19 Clark St & Elm St            Subscriber      22717  301. Subscriber_end    
-    ## 20 LaSalle St & Jackson Blvd    Subscriber      22052  297. Subscriber_end
 
     # combine top start and end stations for further visualization
     combined_stations <- union(top_start_stations, top_end_stations)
@@ -756,13 +621,6 @@ Type](cyclistic_files/figure-markdown_strict/seasonal%20plot-1.png)
 
     # Insight: The top start and end stations are generally consistent within the same user type. However, there is little overlap in the top stations between different user types.
 
-<figure>
-<img
-src="cyclistic_files/figure-markdown_strict/top%20station%20plot-1.png"
-alt="Top Stations by User Type" />
-<figcaption aria-hidden="true">Top Stations by User Type</figcaption>
-</figure>
-
     # Clean the data for gender analysis.
     data_with_gender <- clean_data %>%
       filter(!is.na(gender) & gender != "")
@@ -773,8 +631,8 @@ alt="Top Stations by User Type" />
       summarise(count = n()) %>%
       ungroup()
 
-    ## `summarise()` has grouped output by 'usertype'. You can override using the
-    ## `.groups` argument.
+    ## `summarise()` has grouped output by 'usertype'. You can override using the `.groups`
+    ## argument.
 
     gender_proportions <- gender_counts %>%
       group_by(usertype) %>%
@@ -795,9 +653,7 @@ alt="Top Stations by User Type" />
       theme(legend.position = "none",  # Remove legend
             plot.title = element_text(hjust = 0.5))  # Center plot title
 
-![](cyclistic_files/figure-markdown_strict/gender-1.png) ![Proportion of
-Genders by User
-Type](cyclistic_files/figure-markdown_strict/gender-1.png)
+![](cyclistic_files/figure-markdown_strict/gender-1.png)
 
     # clean the data for birthyear analysis
     data_with_birthyear <- clean_data %>%
@@ -814,19 +670,11 @@ Type](cyclistic_files/figure-markdown_strict/gender-1.png)
       theme_minimal() +
       xlim(1940, 2010)
 
-    ## Warning: Removed 1238 rows containing non-finite outside the scale range
-    ## (`stat_bin()`).
+    ## Warning: Removed 1238 rows containing non-finite outside the scale range (`stat_bin()`).
 
 ![](cyclistic_files/figure-markdown_strict/birthyear-1.png)
 
     # Insight: The majority of users are born between 1980 and 2000. Casual customers are predominantly born between 1990 and 2000, while subscribers are mostly born between 1980 and 1990.
-
-<figure>
-<img src="cyclistic_files/figure-markdown_strict/birthyear-1.png"
-alt="Birth Year Distribution by User Type" />
-<figcaption aria-hidden="true">Birth Year Distribution by User
-Type</figcaption>
-</figure>
 
 ## **Key Findings**
 
