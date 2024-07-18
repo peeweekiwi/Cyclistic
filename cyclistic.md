@@ -1,5 +1,3 @@
-![](cyclistic_files/figure-markdown_strict/divvyfile-1-900x600.jpg)
-
 # Cyclistic Bike-Share User Analysis by R
 
 **Author:** Adela Xu  
