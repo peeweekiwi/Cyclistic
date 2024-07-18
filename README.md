@@ -1,4 +1,5 @@
 ![](cyclistic_files/figure-markdown_strict/divvyfile-1-900x600.jpg)
+[Daily file photo by Sean Su](https://dailynorthwestern.com/staff_name/daily-file-photo-by-sean-su/)
 
 # Cyclistic Bike_Share User Analysis by R
 
