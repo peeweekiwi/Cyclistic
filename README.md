@@ -1,5 +1,6 @@
-![](cyclistic_files/figure-markdown_strict/divvyfile-1-900x600.jpg)
-[Daily file photo by Sean Su](https://dailynorthwestern.com/staff_name/daily-file-photo-by-sean-su/)
+<img src="cyclistic_files/figure-markdown_strict/divvyfile-1-900x600.jpg" alt="Cyclistic Bike Image" width="600" height="360"/>
+
+<span style="font-size:12px; color:gray;">[Daily file photo by Sean Su](https://dailynorthwestern.com/staff_name/daily-file-photo-by-sean-su/)</span>
 
 # Cyclistic Bike_Share User Analysis by R
 
