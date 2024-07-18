@@ -345,8 +345,8 @@ types.
     total_trips <- total_trips %>%
       mutate(percentage = count_num / sum(count_num) * 100)
 
-    ggplot(total_trips, aes(x = "", y = count, fill = usertype)) +
-      geom_bar(stat = "identity", width = 1) +
+    ggplot(total_trips, aes(x = "", y = percentage, fill = usertype)) +
+      geom_bar(stat = "identity") +
       coord_polar(theta = "y") +
       labs(title = "Proportion of Total Trips by User Type") +
       geom_text(aes(label = paste0(usertype, "\n", count, "\n", round(percentage, 1), "%")),
